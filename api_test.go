@@ -1,6 +1,7 @@
 package mango
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -487,7 +488,7 @@ func TestPostBet(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	err := mc.PostBet(pbr)
+	_, err := mc.PostBet(context.Background(), pbr)
 	if err != nil {
 		t.Errorf("error posting bet: %v", err)
 		t.Fail()
@@ -505,7 +506,7 @@ func TestCancelBet(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	err := mc.CancelBet("123abc")
+	err := mc.CancelBet(context.Background(), "123abc")
 	if err != nil {
 		t.Errorf("error cancelling bet: %v", err)
 		t.Fail()

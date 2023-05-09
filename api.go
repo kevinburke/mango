@@ -395,7 +395,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 // See [the Manifold API docs for POST /v0/bet] for more details.
 //
 // [the Manifold API docs for POST /v0/bet]: https://docs.manifold.markets/api#post-v0bet
-func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*betResponse, error) {
+func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*BetResponse, error) {
 	jsonBody, err := json.Marshal(pbr)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
@@ -420,14 +420,22 @@ func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*betResponse
 		return nil, fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
 	}
 
-	return parseResponse(resp, betResponse{})
+	return parseResponse(resp, BetResponse{})
 }
 
-type betResponse struct {
-	ContractID  string `json:"contractId"`
-	BetID       string `json:"betId"`
-	IsFilled    bool   `json:"isFilled"`
-	IsCancelled bool   `json:"isCancelled"`
+type BetResponse struct {
+	ContractID        string  `json:"contractId"`
+	BetID             string  `json:"betId"`
+	IsFilled          bool    `json:"isFilled"`
+	IsCancelled       bool    `json:"isCancelled"`
+	Amount            float64 `json:"amount"`
+	OrderAmount       float64 `json:"orderAmount"`
+	Shares            float64 `json:"shares"`
+	ProbabilityBefore float64 `json:"probBefore"`
+	ProbabilityAfter  float64 `json:"probAfter"`
+	Visibility        string  `json:"visibility"`
+	Outcome           string  `json:"outcome"`
+	LoanAmount        float64 `json:"loanAmount"`
 }
 
 // CancelBet cancels an existing limit order for the given betId.
