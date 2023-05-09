@@ -12,11 +12,13 @@ package mango
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -62,7 +64,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 	if gbr.Limit == 0 {
 		gbr.Limit = defaultLimit
 	}
-	resp, err := http.Get(requestURL(
+	resp, err := mc.client.Get(requestURL(
 		mc.url,
 		getBets, "", "",
 		"userId", gbr.UserId,
@@ -95,7 +97,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 		return nil, fmt.Errorf("either contractID or contractSlug must be specified")
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getComments, "", "",
+	resp, err := mc.client.Get(requestURL(mc.url, getComments, "", "",
 		"contractId", gcr.ContractId,
 		"contractSlug", gcr.ContractSlug,
 	))
@@ -115,7 +117,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id]: https://docs.manifold.markets/api#get-v0groupby-idid
 func (mc *Client) GetGroupById(id string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getGroupByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -132,7 +134,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 //
 // [the Manifold API docs for GET /v0/group/slug]: https://docs.manifold.markets/api#get-v0groupslug
 func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupBySlug, slug, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getGroupBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -155,7 +157,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 	if userId != nil {
 		uid = *userId
 	}
-	resp, err := http.Get(requestURL(
+	resp, err := mc.client.Get(requestURL(
 		mc.url, getGroups, "", "",
 		"availableToUserId", uid,
 	))
@@ -175,7 +177,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 //
 // [the Manifold API docs for GET /v0/market/marketId]: https://docs.manifold.markets/api#get-v0marketmarketid
 func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getMarketByID, id, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getMarketByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -192,7 +194,7 @@ func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/slug/marketSlug]: https://docs.manifold.markets/api#get-v0slugmarketslug
 func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getMarketBySlug, slug, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getMarketBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -216,7 +218,7 @@ func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 		gmr.Limit = defaultLimit
 	}
 
-	resp, err := http.Get(requestURL(
+	resp, err := mc.client.Get(requestURL(
 		mc.url, getMarkets,
 		"",
 		"",
@@ -238,7 +240,7 @@ func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id/markets]: https://docs.manifold.markets/api#get-v0groupby-ididmarkets
 func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
+	resp, err := mc.client.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
 	if err != nil {
 		log.Printf("error making http request: %v", err)
 	}
@@ -278,7 +280,7 @@ func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]Contrac
 		b = "null"
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
+	resp, err := mc.client.Get(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
 		"order", gmpr.Order,
 		"top", t,
 		"bottom", b,
@@ -310,7 +312,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 		}
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getSearchMarkets, "", "",
+	resp, err := mc.client.Get(requestURL(mc.url, getSearchMarkets, "", "",
 		"terms", ts,
 	))
 	if err != nil {
@@ -329,7 +331,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/user/by-id/id]: https://docs.manifold.markets/api#get-v0userby-idid
 func (mc *Client) GetUserByID(id string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, getUserByID, id, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getUserByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -346,7 +348,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 //
 // [the Manifold API docs for GET /v0/user/username]: https://docs.manifold.markets/api#get-v0userusername
 func (mc *Client) GetUserByUsername(un string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, getUserByUsername, un, ""))
+	resp, err := mc.client.Get(requestURL(mc.url, getUserByUsername, un, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -369,7 +371,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 		gur.Limit = defaultLimit
 	}
 
-	resp, err := http.Get(requestURL(
+	resp, err := mc.client.Get(requestURL(
 		mc.url, getUsers,
 		"",
 		"",
@@ -393,32 +395,39 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 // See [the Manifold API docs for POST /v0/bet] for more details.
 //
 // [the Manifold API docs for POST /v0/bet]: https://docs.manifold.markets/api#post-v0bet
-func (mc *Client) PostBet(pbr PostBetRequest) error {
+func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*betResponse, error) {
 	jsonBody, err := json.Marshal(pbr)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %v", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL(
 		mc.url, postBet,
 		"",
 		""), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
 
 	resp, err := mc.postRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
+		return nil, fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
 	}
 
-	return nil
+	return parseResponse(resp, betResponse{})
+}
+
+type betResponse struct {
+	ContractID  string `json:"contractId"`
+	BetID       string `json:"betId"`
+	IsFilled    bool   `json:"isFilled"`
+	IsCancelled bool   `json:"isCancelled"`
 }
 
 // CancelBet cancels an existing limit order for the given betId.
@@ -428,8 +437,8 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 // See [the Manifold API docs for POST /v0/bet/cancel/id] for more details.
 //
 // [the Manifold API docs for POST /v0/bet/cancel/id]: https://docs.manifold.markets/api#post-v0betcancelid
-func (mc *Client) CancelBet(betId string) error {
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+func (mc *Client) CancelBet(ctx context.Context, betId string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL(
 		mc.url, postCancellation,
 		betId,
 		""), nil)
@@ -763,13 +772,16 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	return &s, nil
 }
 
+const Version = "0.1"
+
 func (mc *Client) postRequest(req *http.Request) (*http.Response, error) {
 	if mc.key == "" {
 		return nil, fmt.Errorf("no API key found")
 	}
 
+	req.Header.Set("User-Agent", fmt.Sprintf("github.com/kevinburke/mango/%s go/%s", Version, runtime.Version()))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
+	req.Header.Set("Authorization", "Key "+mc.key)
 
 	return mc.client.Do(req)
 }
