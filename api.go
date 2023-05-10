@@ -415,11 +415,6 @@ func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*BetResponse
 	if err != nil {
 		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
-	}
-
 	return parseResponse(resp, BetResponse{})
 }
 
@@ -436,6 +431,7 @@ type BetResponse struct {
 	Visibility        string  `json:"visibility"`
 	Outcome           string  `json:"outcome"`
 	LoanAmount        float64 `json:"loanAmount"`
+	CreatedTime       int64   `json:"createdTime"`
 }
 
 // CancelBet cancels an existing limit order for the given betId.
