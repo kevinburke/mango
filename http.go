@@ -9,6 +9,7 @@ import (
 )
 
 func (c *Client) makeRequest(ctx context.Context, method, url string, body io.Reader) (*http.Response, error) {
+	c.canConsumeRead()
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, err
