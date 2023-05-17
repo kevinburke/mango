@@ -53,7 +53,6 @@ func (c *Client) refill() {
 
 		c.readCond.Broadcast()
 		dur := time.Duration(1000/c.readFillRate) * time.Millisecond
-		fmt.Println("sleeping", dur)
 		time.Sleep(dur)
 	}
 }
