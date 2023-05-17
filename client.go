@@ -73,6 +73,9 @@ func (c *Client) readUpdate() {
 func (c *Client) canConsumeRead() {
 	c.readMu.Lock()
 	defer c.readMu.Unlock()
+	if c.readCapacity == 0 { // never set capacity
+		return
+	}
 
 	for c.readRemaining <= 0 {
 		c.readCond.Wait()

@@ -437,11 +437,8 @@ func (mc *Client) CancelBet(ctx context.Context, betId string) error {
 		return fmt.Errorf("error making request: %w", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bet cancellation failed with status %d", resp.StatusCode)
-	}
-
-	return nil
+	_, err = parseResponse(resp, struct{}{})
+	return err
 }
 
 // CreateMarket creates a new market. It takes a [PostMarketRequest] which has the following parameters:
@@ -733,8 +730,10 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 		return nil, fmt.Errorf("non-200 status code found: %v, message: %v", r.StatusCode, string(body))
 	}
 
-	if err = json.Unmarshal(body, &s); err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON: %v", err)
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &s); err != nil {
+			return nil, fmt.Errorf("error unmarshalling JSON: %v", err)
+		}
 	}
 
 	return &s, nil
