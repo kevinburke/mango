@@ -2,10 +2,11 @@ package mango
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 // Client represents the main Mango client, used to make requests to the Manifold API
@@ -13,6 +14,72 @@ type Client struct {
 	client http.Client
 	key    string
 	url    string
+
+	readCapacity        int64
+	readRemaining       int64
+	readFillRate        int64
+	readLastFilled      time.Time
+	readMu              sync.Mutex
+	readCond            *sync.Cond
+	readRefillerRunning bool
+
+	writeCapacity   int64
+	writeRemaining  int64
+	writeFillRate   int64
+	writeLastFilled time.Time
+	writeMu         sync.Mutex
+	writeCond       *sync.Cond
+}
+
+// Set read capacity in requests per second
+func (c *Client) SetReadCapacity(rps int64) {
+	if c.readRefillerRunning {
+		panic("cannot set read capacity more than once")
+	}
+	c.readFillRate = rps
+	c.readCapacity = rps
+	c.readRemaining = rps
+	c.readLastFilled = time.Now()
+	c.readCond = sync.NewCond(&c.readMu)
+	c.readRefillerRunning = true
+	go c.refill()
+}
+
+func (c *Client) refill() {
+	for {
+		c.readMu.Lock()
+		c.readUpdate()
+		c.readMu.Unlock()
+
+		c.readCond.Broadcast()
+		dur := time.Duration(1000/c.readFillRate) * time.Millisecond
+		fmt.Println("sleeping", dur)
+		time.Sleep(dur)
+	}
+}
+
+func (c *Client) readUpdate() {
+	now := time.Now()
+	elapsed := now.Sub(c.readLastFilled).Seconds()
+	amount := int64(elapsed * float64(c.readFillRate))
+
+	c.readRemaining += amount
+	if c.readRemaining > c.readCapacity {
+		c.readRemaining = c.readCapacity
+	}
+
+	c.readLastFilled = now
+}
+
+func (c *Client) canConsumeRead() {
+	c.readMu.Lock()
+	defer c.readMu.Unlock()
+
+	for c.readRemaining <= 0 {
+		c.readCond.Wait()
+	}
+
+	c.readRemaining--
 }
 
 var lock = &sync.Mutex{}
@@ -86,7 +153,7 @@ func apiKey() string {
 	if err != nil {             // Handle errors reading the config file
 		fmt.Errorf("fatal error config file: %w", err)
 	}
-	
+
 	viper.SetEnvPrefix("MANIFOLD")
 	viper.AutomaticEnv()
 

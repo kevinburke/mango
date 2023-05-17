@@ -31,15 +31,10 @@ import (
 // See [the Manifold API docs for GET /v0/me] for more details.
 //
 // [the Manifold API docs for GET /v0/me]: https://docs.manifold.markets/api#get-v0me
-func (mc *Client) GetAuthenticatedUser() (*User, error) {
-	req, err := http.NewRequest(http.MethodGet, requestURL(mc.url, getMe, "", ""), nil)
+func (mc *Client) GetAuthenticatedUser(ctx context.Context) (*User, error) {
+	resp, err := mc.makeRequest(ctx, http.MethodGet, requestURL(mc.url, getMe, "", ""), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, User{})
@@ -403,18 +398,10 @@ func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*BetResponse
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postBet,
 		"",
 		""), bodyReader)
-	if err != nil {
-		return nil, fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("client: error making http request: %v", err)
-	}
 	return parseResponse(resp, BetResponse{})
 }
 
@@ -442,17 +429,12 @@ type BetResponse struct {
 //
 // [the Manifold API docs for POST /v0/bet/cancel/id]: https://docs.manifold.markets/api#post-v0betcancelid
 func (mc *Client) CancelBet(ctx context.Context, betId string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postCancellation,
 		betId,
 		""), nil)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
-	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("error making request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -483,7 +465,7 @@ func (mc *Client) CancelBet(ctx context.Context, betId string) error {
 // See [the Manifold API docs for POST /v0/market] for more details.
 //
 // [the Manifold API docs for POST /v0/market]: https://docs.manifold.markets/api#post-v0market
-func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
+func (mc *Client) CreateMarket(ctx context.Context, pmr PostMarketRequest) (*string, error) {
 	// TODO: add input validation
 	jsonBody, err := json.Marshal(pmr)
 	if err != nil {
@@ -492,18 +474,10 @@ func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postMarket,
 		"",
 		""), bodyReader)
-	if err != nil {
-		return nil, fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("client: error making http request: %v", err)
-	}
 
 	if resp.StatusCode != http.StatusOK {
 		// TODO: print the response body here too
@@ -537,15 +511,10 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(context.TODO(), http.MethodPost, requestURL(
 		mc.url, postMarket,
 		marketId,
 		liquiditySuffix), bodyReader)
-	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -737,15 +706,10 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(context.TODO(), http.MethodPost, requestURL(
 		mc.url, postComment,
 		marketId,
 		""), bodyReader)
-	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}

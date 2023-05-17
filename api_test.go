@@ -38,7 +38,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	result, err := mc.GetAuthenticatedUser()
+	result, err := mc.GetAuthenticatedUser(context.TODO())
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -545,7 +545,7 @@ func TestCreateMarket(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	resp, err := mc.CreateMarket(pmr)
+	resp, err := mc.CreateMarket(context.TODO(), pmr)
 	if err != nil {
 		t.Errorf("error creating market: %v", err)
 		t.Fail()
