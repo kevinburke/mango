@@ -21,6 +21,26 @@ func newSlidingWindow(maxRequests int, windowSize time.Duration) *slidingWindow 
 	}
 }
 
+func (s *slidingWindow) AvailableNow() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	now := time.Now()
+	startWindow := now.Add(-s.windowSize)
+	newTimestamps := make([]time.Time, 0)
+
+	for _, ts := range s.timestamps {
+		if ts.After(startWindow) {
+			newTimestamps = append(newTimestamps, ts)
+		}
+	}
+
+	if len(newTimestamps) < s.maxRequests {
+		return s.maxRequests - len(newTimestamps)
+	}
+	return 0
+}
+
 func (s *slidingWindow) Add(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
