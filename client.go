@@ -23,12 +23,13 @@ type Client struct {
 	readCond            *sync.Cond
 	readRefillerRunning bool
 
-	writeCapacity   int64
-	writeRemaining  int64
-	writeFillRate   int64
-	writeLastFilled time.Time
-	writeMu         sync.Mutex
-	writeCond       *sync.Cond
+	writeCapacity        int64
+	writeRemaining       int64
+	writeFillRate        int64
+	writeLastFilled      time.Time
+	writeMu              sync.Mutex
+	writeCond            *sync.Cond
+	writeRefillerRunning bool
 }
 
 // Set read capacity in requests per second
@@ -42,10 +43,24 @@ func (c *Client) SetReadCapacity(rps int64) {
 	c.readLastFilled = time.Now()
 	c.readCond = sync.NewCond(&c.readMu)
 	c.readRefillerRunning = true
-	go c.refill()
+	go c.readRefill()
 }
 
-func (c *Client) refill() {
+// Set write capacity in requests per second
+func (c *Client) SetWriteCapacity(rps int64) {
+	if c.writeRefillerRunning {
+		panic("cannot set write capacity more than once")
+	}
+	c.writeFillRate = rps
+	c.writeCapacity = rps
+	c.writeRemaining = rps
+	c.writeLastFilled = time.Now()
+	c.writeCond = sync.NewCond(&c.writeMu)
+	c.writeRefillerRunning = true
+	go c.writeRefill()
+}
+
+func (c *Client) readRefill() {
 	for {
 		c.readMu.Lock()
 		c.readUpdate()
@@ -53,6 +68,18 @@ func (c *Client) refill() {
 
 		c.readCond.Broadcast()
 		dur := time.Duration(1000/c.readFillRate) * time.Millisecond
+		time.Sleep(dur)
+	}
+}
+
+func (c *Client) writeRefill() {
+	for {
+		c.writeMu.Lock()
+		c.writeUpdate()
+		c.writeMu.Unlock()
+
+		c.writeCond.Broadcast()
+		dur := time.Duration(1000/c.writeFillRate) * time.Millisecond
 		time.Sleep(dur)
 	}
 }
@@ -70,6 +97,19 @@ func (c *Client) readUpdate() {
 	c.readLastFilled = now
 }
 
+func (c *Client) writeUpdate() {
+	now := time.Now()
+	elapsed := now.Sub(c.writeLastFilled).Seconds()
+	amount := int64(elapsed * float64(c.writeFillRate))
+
+	c.writeRemaining += amount
+	if c.writeRemaining > c.writeCapacity {
+		c.writeRemaining = c.writeCapacity
+	}
+
+	c.writeLastFilled = now
+}
+
 func (c *Client) canConsumeRead() {
 	c.readMu.Lock()
 	defer c.readMu.Unlock()
@@ -82,6 +122,20 @@ func (c *Client) canConsumeRead() {
 	}
 
 	c.readRemaining--
+}
+
+func (c *Client) canConsumeWrite() {
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+	if c.writeCapacity == 0 { // never set capacity
+		return
+	}
+
+	for c.writeRemaining <= 0 {
+		c.writeCond.Wait()
+	}
+
+	c.writeRemaining--
 }
 
 var lock = &sync.Mutex{}

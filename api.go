@@ -739,7 +739,7 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	return &s, nil
 }
 
-const Version = "0.1"
+const Version = "0.2"
 
 func (mc *Client) postRequest(req *http.Request) (*http.Response, error) {
 	if mc.key == "" {
