@@ -84,6 +84,7 @@ func (c *Client) writeRefill() {
 	}
 }
 
+// Caller must hold c.readMu
 func (c *Client) readUpdate() {
 	now := time.Now()
 	elapsed := now.Sub(c.readLastFilled).Seconds()
@@ -97,6 +98,7 @@ func (c *Client) readUpdate() {
 	c.readLastFilled = now
 }
 
+// Caller must hold c.writeMu
 func (c *Client) writeUpdate() {
 	now := time.Now()
 	elapsed := now.Sub(c.writeLastFilled).Seconds()
@@ -136,6 +138,13 @@ func (c *Client) canConsumeWrite() {
 	}
 
 	c.writeRemaining--
+}
+
+// WritesAvailable returns the number of writes available at this instant
+func (c *Client) WritesAvailable() int64 {
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+	return c.writeRemaining
 }
 
 var lock = &sync.Mutex{}

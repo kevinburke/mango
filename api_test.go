@@ -241,7 +241,7 @@ func TestGetMarkets(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual, err := mc.GetMarkets(GetMarketsRequest{test.b, int64(test.l)})
+		actual, err := mc.GetMarkets(context.TODO(), GetMarketsRequest{test.b, int64(test.l)})
 		if err != nil {
 			t.Errorf("error getting markets: %v", err)
 			t.Fail()

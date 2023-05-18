@@ -208,17 +208,18 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 // See [the Manifold API docs for GET /v0/markets] for more details.
 //
 // [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
-func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
+func (mc *Client) GetMarkets(ctx context.Context, gmr GetMarketsRequest) (*[]LiteMarket, error) {
 	if gmr.Limit == 0 {
 		gmr.Limit = defaultLimit
 	}
 
-	resp, err := mc.client.Get(requestURL(
+	url := requestURL(
 		mc.url, getMarkets,
 		"",
 		"",
 		"limit", strconv.FormatInt(gmr.Limit, 10), "before", gmr.Before,
-	))
+	)
+	resp, err := mc.makeRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -402,6 +403,9 @@ func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*BetResponse
 		mc.url, postBet,
 		"",
 		""), bodyReader)
+	if err != nil {
+		return nil, fmt.Errorf("mango: could not create bet: %w", err)
+	}
 	return parseResponse(resp, BetResponse{})
 }
 
@@ -721,6 +725,9 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 // parseResponse takes an HTTP response and a type and attempts to unmarshal
 // the body from the response into the given type.
 func parseResponse[S any](r *http.Response, s S) (*S, error) {
+	if r == nil {
+		panic("cannot parse response on nil *http.Response")
+	}
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %v", err)
