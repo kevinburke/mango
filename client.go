@@ -15,136 +15,18 @@ type Client struct {
 	key    string
 	url    string
 
-	readCapacity        int64
-	readRemaining       int64
-	readFillRate        int64
-	readLastFilled      time.Time
-	readMu              sync.Mutex
-	readCond            *sync.Cond
-	readRefillerRunning bool
-
-	writeCapacity        int64
-	writeRemaining       int64
-	writeFillRate        int64
-	writeLastFilled      time.Time
-	writeMu              sync.Mutex
-	writeCond            *sync.Cond
-	writeRefillerRunning bool
+	readWindow  *slidingWindow
+	writeWindow *slidingWindow
 }
 
 // Set read capacity in requests per second
-func (c *Client) SetReadCapacity(rps int64) {
-	if c.readRefillerRunning {
-		panic("cannot set read capacity more than once")
-	}
-	c.readFillRate = rps
-	c.readCapacity = rps
-	c.readRemaining = rps
-	c.readLastFilled = time.Now()
-	c.readCond = sync.NewCond(&c.readMu)
-	c.readRefillerRunning = true
-	go c.readRefill()
+func (c *Client) SetReadCapacity(maxRequests int, window time.Duration) {
+	c.readWindow = newSlidingWindow(maxRequests, window)
 }
 
-// Set write capacity in requests per second
-func (c *Client) SetWriteCapacity(rps int64) {
-	if c.writeRefillerRunning {
-		panic("cannot set write capacity more than once")
-	}
-	c.writeFillRate = rps
-	c.writeCapacity = rps
-	c.writeRemaining = rps
-	c.writeLastFilled = time.Now()
-	c.writeCond = sync.NewCond(&c.writeMu)
-	c.writeRefillerRunning = true
-	go c.writeRefill()
-}
-
-func (c *Client) readRefill() {
-	for {
-		c.readMu.Lock()
-		c.readUpdate()
-		c.readMu.Unlock()
-
-		c.readCond.Broadcast()
-		dur := time.Duration(1000/c.readFillRate) * time.Millisecond
-		time.Sleep(dur)
-	}
-}
-
-func (c *Client) writeRefill() {
-	for {
-		c.writeMu.Lock()
-		c.writeUpdate()
-		c.writeMu.Unlock()
-
-		c.writeCond.Broadcast()
-		dur := time.Duration(1000/c.writeFillRate) * time.Millisecond
-		time.Sleep(dur)
-	}
-}
-
-// Caller must hold c.readMu
-func (c *Client) readUpdate() {
-	now := time.Now()
-	elapsed := now.Sub(c.readLastFilled).Seconds()
-	amount := int64(elapsed * float64(c.readFillRate))
-
-	c.readRemaining += amount
-	if c.readRemaining > c.readCapacity {
-		c.readRemaining = c.readCapacity
-	}
-
-	c.readLastFilled = now
-}
-
-// Caller must hold c.writeMu
-func (c *Client) writeUpdate() {
-	now := time.Now()
-	elapsed := now.Sub(c.writeLastFilled).Seconds()
-	amount := int64(elapsed * float64(c.writeFillRate))
-
-	c.writeRemaining += amount
-	if c.writeRemaining > c.writeCapacity {
-		c.writeRemaining = c.writeCapacity
-	}
-
-	c.writeLastFilled = now
-}
-
-func (c *Client) canConsumeRead() {
-	c.readMu.Lock()
-	defer c.readMu.Unlock()
-	if c.readCapacity == 0 { // never set capacity
-		return
-	}
-
-	for c.readRemaining <= 0 {
-		c.readCond.Wait()
-	}
-
-	c.readRemaining--
-}
-
-func (c *Client) canConsumeWrite() {
-	c.writeMu.Lock()
-	defer c.writeMu.Unlock()
-	if c.writeCapacity == 0 { // never set capacity
-		return
-	}
-
-	for c.writeRemaining <= 0 {
-		c.writeCond.Wait()
-	}
-
-	c.writeRemaining--
-}
-
-// WritesAvailable returns the number of writes available at this instant
-func (c *Client) WritesAvailable() int64 {
-	c.writeMu.Lock()
-	defer c.writeMu.Unlock()
-	return c.writeRemaining
+// Set write capacity in requests per *minute*
+func (c *Client) SetWriteCapacity(maxRequests int, window time.Duration) {
+	c.writeWindow = newSlidingWindow(maxRequests, window)
 }
 
 var lock = &sync.Mutex{}

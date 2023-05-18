@@ -13,14 +13,17 @@ var ua = fmt.Sprintf("github.com/kevinburke/mango/%s go/%s", Version, runtime.Ve
 func (c *Client) makeRequest(ctx context.Context, method, url string, body io.Reader) (*http.Response, error) {
 	// These both block
 	if method == "GET" || method == "HEAD" {
-		c.canConsumeRead()
+		if c.readWindow != nil {
+			if err := c.readWindow.Add(ctx); err != nil {
+				return nil, err
+			}
+		}
 	} else {
-		c.canConsumeWrite()
-	}
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
+		if c.writeWindow != nil {
+			if err := c.writeWindow.Add(ctx); err != nil {
+				return nil, err
+			}
+		}
 	}
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
