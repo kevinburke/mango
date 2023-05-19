@@ -7,6 +7,7 @@ import (
 )
 
 type slidingWindow struct {
+	// TODO this mutex is not good
 	mu          sync.Mutex
 	maxRequests int
 	windowSize  time.Duration
