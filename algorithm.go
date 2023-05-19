@@ -5,7 +5,8 @@ import (
 	"math"
 )
 
-type state struct {
+// State of a given market
+type State struct {
 	Yes float64
 	No  float64
 	P   float64 // not sure what this is
@@ -16,7 +17,7 @@ func getCPMMProbability(yes, no float64, outcome string, prob float64) float64 {
 	return prob * no / ((1-prob)*yes + prob*no)
 }
 
-func NewBinaryProbability(state state, bet float64, outcome string) (shares float64, newProbability float64) {
+func NewBinaryProbability(state State, bet float64, outcome string) (shares float64, newProbability float64) {
 	// copied from common/src/calculate-cpmm.ts:calculateCpmmPurchase
 	p := state.P
 	k := math.Pow(state.Yes, p) * math.Pow(state.No, 1-p)
@@ -40,7 +41,7 @@ func NewBinaryProbability(state state, bet float64, outcome string) (shares floa
 	return shares, getCPMMProbability(newYes, newNo, outcome, p)
 }
 
-func BinaryAmountToProbability(state state, prob float64, outcome string) (float64, error) {
+func BinaryAmountToProbability(state State, prob float64, outcome string) (float64, error) {
 	if prob <= 0 || prob >= 1 {
 		return 0, fmt.Errorf("bad probability: %v", prob)
 	}
