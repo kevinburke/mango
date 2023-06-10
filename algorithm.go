@@ -13,9 +13,36 @@ type State struct {
 	P   float64 // not sure what this is
 }
 
-// Adjust a probability number for a new number of YES and NO bets.
-func getCPMMProbability(yes, no float64, outcome string, prob float64) float64 {
-	return prob * no / ((1-prob)*yes + prob*no)
+// Returns the new probability
+func (s *State) Bet(bet float64, outcome string) float64 {
+	if s == nil {
+		panic("mango.State.Bet: nil *State")
+	}
+	shares := SharesFromBet(*s, bet, outcome)
+	switch outcome {
+	case "YES":
+		s.Yes = s.Yes - shares + bet
+		s.No = s.No + bet
+	case "NO":
+		s.Yes = s.Yes + bet
+		s.No = s.No - shares + bet
+	default:
+		panic(fmt.Sprintf("unknown outcome value %q", outcome))
+	}
+	fee := float64(0)
+	prob := getCPMMProbability(s.Yes, s.No, s.P)
+	numerator := prob * (fee + s.Yes)
+	denominator := fee - s.No*(prob-1) + prob*s.Yes
+	s.P = numerator / denominator
+	return shares
+}
+
+func (s State) Probability() float64 {
+	return getCPMMProbability(s.Yes, s.No, s.P)
+}
+
+func getCPMMProbability(yes, no float64, p float64) float64 {
+	return (p * no) / ((1-p)*yes + p*no)
 }
 
 func SharesFromBet(state State, bet float64, outcome string) float64 {
@@ -47,20 +74,9 @@ func BetFromShares(state State, shares, guess float64, outcome string, delta flo
 	return -1, errors.New("max iterations exceeded")
 }
 
-func NewBinaryProbability(state State, bet float64, outcome string) (shares float64, newProbability float64) {
-	// copied from common/src/calculate-cpmm.ts:calculateCpmmPurchase
-	p := state.P
-	shares = SharesFromBet(state, bet, outcome)
-	var newYes, newNo float64
-	if outcome == "YES" {
-		newYes = state.Yes - shares + bet
-		newNo = state.No + bet
-	} else {
-		newYes = state.Yes + bet
-		newNo = state.No - shares + bet
-	}
-	// addCpmmLiquidity
-	return shares, getCPMMProbability(newYes, newNo, outcome, p)
+func NewBinaryProbability(state *State, bet float64, outcome string) (shares float64, newProbability float64) {
+	shares = state.Bet(bet, outcome)
+	return shares, state.Probability()
 }
 
 // BinaryAmountToProbability returns the amount that must be bet to move the

@@ -171,8 +171,8 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 // See [the Manifold API docs for GET /v0/market/marketId] for more details.
 //
 // [the Manifold API docs for GET /v0/market/marketId]: https://docs.manifold.markets/api#get-v0marketmarketid
-func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
-	resp, err := mc.client.Get(requestURL(mc.url, getMarketByID, id, ""))
+func (mc *Client) GetMarketByID(ctx context.Context, id string) (*FullMarket, error) {
+	resp, err := mc.makeRequest(ctx, http.MethodGet, requestURL(mc.url, getMarketByID, id, ""), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -451,7 +451,7 @@ func (mc *Client) CancelBet(ctx context.Context, betId string) error {
 //   - [PostMarketRequest.Description] - Optional. Non-rich text description.
 //   - [PostMarketRequest.DescriptionHtml] - Optional.
 //   - [PostMarketRequest.DescriptionMarkdown] - Optional.
-//   - [PostMarketRequest.CloseTime] - Optional. In epoch time. Default 7 days from time of creation.
+//   - [PostMarketRequest.CloseTime] - Optional. Milliseconds since the epoch. Default 7 days from time of creation.
 //   - [PostMarketRequest.Visibility] - Optional. One of "public" or "unlisted" TODO: make this an enum
 //   - [PostMarketRequest.GroupId] - Optional. A group to show the market under.
 //   - [PostMarketRequest.InitialProb] - Required for binary markets. Must be between 1 and 99.
