@@ -70,7 +70,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 		"limit", strconv.FormatInt(gbr.Limit, 10),
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []Bet{})
@@ -97,7 +97,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 		"contractSlug", gcr.ContractSlug,
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []Comment{})
@@ -114,7 +114,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 func (mc *Client) GetGroupById(id string) (*Group, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getGroupByID, id, ""))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, Group{})
@@ -131,7 +131,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getGroupBySlug, slug, ""))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, Group{})
@@ -157,7 +157,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 		"availableToUserId", uid,
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []Group{})
@@ -174,7 +174,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 func (mc *Client) GetMarketByID(ctx context.Context, id string) (*FullMarket, error) {
 	resp, err := mc.makeRequest(ctx, http.MethodGet, requestURL(mc.url, getMarketByID, id, ""), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, FullMarket{})
@@ -191,7 +191,7 @@ func (mc *Client) GetMarketByID(ctx context.Context, id string) (*FullMarket, er
 func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getMarketBySlug, slug, ""))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, FullMarket{})
@@ -221,7 +221,7 @@ func (mc *Client) GetMarkets(ctx context.Context, gmr GetMarketsRequest) (*[]Lit
 	)
 	resp, err := mc.makeRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []LiteMarket{})
@@ -238,7 +238,7 @@ func (mc *Client) GetMarkets(ctx context.Context, gmr GetMarketsRequest) (*[]Lit
 func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
 	if err != nil {
-		log.Printf("error making http request: %v", err)
+		log.Printf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []LiteMarket{})
@@ -283,7 +283,7 @@ func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]Contrac
 		"userId", gmpr.UserId,
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []ContractMetric{})
@@ -312,7 +312,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 		"terms", ts,
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []FullMarket{})
@@ -329,7 +329,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 func (mc *Client) GetUserByID(id string) (*User, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getUserByID, id, ""))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, User{})
@@ -346,7 +346,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 func (mc *Client) GetUserByUsername(un string) (*User, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getUserByUsername, un, ""))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, User{})
@@ -374,7 +374,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 		"limit", strconv.FormatInt(gur.Limit, 10), "before", gur.Before,
 	))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	return parseResponse(resp, []User{})
@@ -394,7 +394,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 func (mc *Client) PostBet(ctx context.Context, pbr PostBetRequest) (*BetResponse, error) {
 	jsonBody, err := json.Marshal(pbr)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -470,7 +470,7 @@ func (mc *Client) CreateMarket(ctx context.Context, pmr PostMarketRequest) (*str
 	// TODO: add input validation
 	jsonBody, err := json.Marshal(pmr)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -487,7 +487,7 @@ func (mc *Client) CreateMarket(ctx context.Context, pmr PostMarketRequest) (*str
 
 	mir, err := parseResponse(resp, marketIdResponse{})
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %v", err)
+		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
 
 	return &mir.Id, nil
@@ -507,7 +507,7 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 
 	jsonBody, err := json.Marshal(amt)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -517,7 +517,7 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 		marketId,
 		liquiditySuffix), bodyReader)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -546,7 +546,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 
 	jsonBody, err := json.Marshal(c)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -556,12 +556,12 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 		marketId,
 		closureSuffix), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return fmt.Errorf("error creating http request: %w", err)
 	}
 
 	resp, err := mc.postRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -585,7 +585,7 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 
 	jsonBody, err := json.Marshal(g)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -595,12 +595,12 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 		marketId,
 		groupSuffix), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return fmt.Errorf("error creating http request: %w", err)
 	}
 
 	resp, err := mc.postRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -626,7 +626,7 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error {
 	jsonBody, err := json.Marshal(rmr)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -636,12 +636,12 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 		marketId,
 		resolutionSuffix), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return fmt.Errorf("error creating http request: %w", err)
 	}
 
 	resp, err := mc.postRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -663,7 +663,7 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	jsonBody, err := json.Marshal(ssr)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -673,12 +673,12 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 		marketId,
 		sellSuffix), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return fmt.Errorf("error creating http request: %w", err)
 	}
 
 	resp, err := mc.postRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -702,7 +702,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 	jsonBody, err := json.Marshal(pcr)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return fmt.Errorf("error making http request: %w", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -712,7 +712,7 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 		marketId,
 		""), bodyReader)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return fmt.Errorf("client: error making http request: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -730,7 +730,7 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	}
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %v", err)
+		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
 
 	if r.StatusCode != http.StatusOK {
@@ -739,7 +739,7 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 
 	if len(body) > 0 {
 		if err := json.Unmarshal(body, &s); err != nil {
-			return nil, fmt.Errorf("error unmarshalling JSON: %v", err)
+			return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
 		}
 	}
 

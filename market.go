@@ -14,7 +14,7 @@ const (
 	FreeResponse   OutcomeType = "FREE_RESPONSE"
 	MultipleChoice OutcomeType = "MULTIPLE_CHOICE"
 	Numeric        OutcomeType = "NUMERIC"
-	PseudoNumeric  OutcomeType = "PSEUDO-NUMERIC"
+	PseudoNumeric  OutcomeType = "PSEUDO_NUMERIC"
 )
 
 // Pool represents the potential outcomes for a market.
