@@ -258,30 +258,35 @@ func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
 // See [the Manifold API docs for GET /v0/market/marketId/positions] for more details.
 //
 // [the Manifold API docs for GET /v0/market/marketId/positions]: https://docs.manifold.markets/api#get-v0marketmarketidpositions
-func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]ContractMetric, error) {
+func (mc *Client) GetMarketPositions(ctx context.Context, gmpr GetMarketPositionsRequest) (*[]ContractMetric, error) {
 	if gmpr.MarketId == "" {
 		return nil, fmt.Errorf("no market ID provided")
 	}
 
 	var t, b string
 	if gmpr.Top != 0 {
-		t = fmt.Sprintf("%d", gmpr.Top)
+		t = strconv.Itoa(gmpr.Top)
 	} else {
 		t = "null"
 	}
 
 	if gmpr.Bottom != 0 {
-		b = fmt.Sprintf("%d", gmpr.Bottom)
+		b = strconv.Itoa(gmpr.Bottom)
 	} else {
 		b = "null"
 	}
 
-	resp, err := mc.client.Get(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
+	url := requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
 		"order", gmpr.Order,
 		"top", t,
 		"bottom", b,
 		"userId", gmpr.UserId,
-	))
+	)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := mc.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %w", err)
 	}
