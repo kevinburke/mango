@@ -73,7 +73,7 @@ type PostMarketRequest struct {
 	DescriptionMarkdown string      `json:"descriptionMarkdown,omitempty"`
 	CloseTime           int64       `json:"closeTime,omitempty"`
 	Visibility          string      `json:"visibility,omitempty"`
-	GroupId             string      `json:"groupId,omitempty"`
+	GroupIds            []string    `json:"groupIds,omitempty"`
 	InitialProb         int64       `json:"initialProb,omitempty"`
 	Min                 int64       `json:"min,omitempty"`
 	Max                 int64       `json:"max,omitempty"`
