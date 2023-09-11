@@ -19,7 +19,7 @@ var binaryProbTestCases = []struct {
 
 func TestBinaryProbability(t *testing.T) {
 	for _, tt := range binaryProbTestCases {
-		state := State{
+		state := &State{
 			Yes: tt.Yes,
 			No:  tt.No,
 			P:   tt.P,

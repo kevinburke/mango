@@ -11,7 +11,7 @@ import (
 // TODO: extract non-deterministic tests out as e2e tests, replace them with deterministic unit tests
 func TestGetAuthenticatedUser(t *testing.T) {
 	expected := User{
-		Id:            "igi2zGXsfxYPgB0DJTXVJVmwCOr2",
+		ID:            "igi2zGXsfxYPgB0DJTXVJVmwCOr2",
 		CreatedTime:   1639011767273,
 		Name:          "Austin",
 		Username:      "Austin",
@@ -192,7 +192,7 @@ func TestGetMarketByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual, err := mc.GetMarketByID(test.mi)
+		actual, err := mc.GetMarketByID(context.TODO(), test.mi)
 		if err != nil {
 			t.Errorf("error getting market by id: %v", err)
 			t.Fail()
@@ -393,7 +393,7 @@ func TestGetMarketPositions(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	result, err := mc.GetMarketPositions(GetMarketPositionsRequest{"1", "desc", 0, 100, "user1"})
+	result, err := mc.GetMarketPositions(context.TODO(), GetMarketPositionsRequest{"1", "desc", 0, 100, "user1"})
 	if err != nil {
 		t.Errorf("error getting market positions: %v", err)
 		t.Fail()
@@ -604,7 +604,7 @@ func TestAddMarketToGroup(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	err := mc.AddMarketToGroup("123marketid", "123groupid")
+	err := mc.AddMarketToGroup(context.TODO(), "123marketid", "123groupid")
 	if err != nil {
 		t.Errorf("error adding market to group: %v", err)
 		t.Fail()

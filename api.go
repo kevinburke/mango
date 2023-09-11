@@ -238,7 +238,7 @@ func (mc *Client) GetMarkets(ctx context.Context, gmr GetMarketsRequest) (*[]Lit
 func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
 	resp, err := mc.client.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
 	if err != nil {
-		log.Printf("error making http request: %w", err)
+		log.Printf("error making http request: %v", err)
 	}
 
 	return parseResponse(resp, []LiteMarket{})
@@ -592,11 +592,8 @@ func (mc *Client) AddMarketToGroup(ctx context.Context, marketId, groupId string
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
-		mc.url, postMarket,
-		marketId,
-		"/group"), bodyReader)
-
+	url := fmt.Sprintf("%s/market/%s/group", mc.url, marketId)
+	resp, err := mc.makeRequest(ctx, http.MethodPost, url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
 	}
