@@ -592,7 +592,7 @@ func (mc *Client) AddMarketToGroup(ctx context.Context, marketId, groupId string
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	url := fmt.Sprintf("%s/market/%s/group", mc.url, marketId)
+	url := fmt.Sprintf("%s/market/%s/group", BaseVersion(), marketId)
 	resp, err := mc.makeRequest(ctx, http.MethodPost, url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)

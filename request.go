@@ -37,6 +37,10 @@ const groupSuffix = "/group/"
 const resolutionSuffix = "/resolve/"
 const sellSuffix = "/sell/"
 
+func BaseVersion() string {
+	return base + "/" + version
+}
+
 // requestURL returns a fully-formed URL that HTTP requests can be sent to.
 // It includes the base domain, path, and any query parameters supplied.
 func requestURL(base, path, value, suffix string, params ...string) string {
