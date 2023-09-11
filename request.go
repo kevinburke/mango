@@ -26,11 +26,11 @@ const getUsers string = "users/"
 
 const postBet string = "bet/"
 const postCancellation string = "bet/cancel/"
-const postMarket string = "market/"
+const postMarket string = "market"
 const postComment string = "comment/"
 
 const marketsSuffix = "/markets/"
-const positionsSuffix = "/positions/"
+const positionsSuffix = "/positions"
 const liquiditySuffix = "/liquidity/"
 const closureSuffix = "/close/"
 const groupSuffix = "/group/"

@@ -21,7 +21,7 @@ type GetUsersRequest struct {
 //
 // This type isn't documented by Manifold and its structure was inferred from API calls.
 type User struct {
-	Id            string       `json:"id"`
+	ID            string       `json:"id"`
 	CreatedTime   int64        `json:"createdTime"`
 	Name          string       `json:"name"`
 	Username      string       `json:"username"`
@@ -38,8 +38,8 @@ type User struct {
 }
 
 func equalUsers(u1, u2 User) (bool, string) {
-	if u1.Id != u2.Id {
-		return false, fmt.Sprintf("user id is not equal: %v & %v", u1.Id, u2.Id)
+	if u1.ID != u2.ID {
+		return false, fmt.Sprintf("user id is not equal: %v & %v", u1.ID, u2.ID)
 	}
 	if u1.CreatedTime != u2.CreatedTime {
 		return false, fmt.Sprintf("user CreatedTime is not equal: %v & %v", u1.CreatedTime, u2.CreatedTime)

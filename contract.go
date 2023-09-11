@@ -41,11 +41,11 @@ type Period struct {
 //
 // MarketId is required, all other fields are optional.
 type GetMarketPositionsRequest struct {
-	MarketId string `json:"marketId"`
+	MarketID string `json:"marketId"`
 	Order    string `json:"order,omitempty"`
 	Top      int    `json:"top,omitempty"`
 	Bottom   int    `json:"bottom,omitempty"`
-	UserId   string `json:"userId,omitempty"`
+	UserID   string `json:"userId,omitempty"`
 }
 
 func equalContractMetrics(cm1, cm2 ContractMetric) (bool, string) {

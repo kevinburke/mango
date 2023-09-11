@@ -259,7 +259,7 @@ func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
 //
 // [the Manifold API docs for GET /v0/market/marketId/positions]: https://docs.manifold.markets/api#get-v0marketmarketidpositions
 func (mc *Client) GetMarketPositions(ctx context.Context, gmpr GetMarketPositionsRequest) (*[]ContractMetric, error) {
-	if gmpr.MarketId == "" {
+	if gmpr.MarketID == "" {
 		return nil, fmt.Errorf("no market ID provided")
 	}
 
@@ -276,17 +276,14 @@ func (mc *Client) GetMarketPositions(ctx context.Context, gmpr GetMarketPosition
 		b = "null"
 	}
 
-	url := requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
+	url := requestURL(mc.url, getMarketByID, gmpr.MarketID, positionsSuffix,
 		"order", gmpr.Order,
 		"top", t,
 		"bottom", b,
-		"userId", gmpr.UserId,
+		"userId", gmpr.UserID,
 	)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := mc.client.Do(req)
+	fmt.Println("request URL", url)
+	resp, err := mc.makeRequest(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %w", err)
 	}
@@ -583,10 +580,10 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 // See [the Manifold API docs for POST /v0/market/marketId/group] for more details.
 //
 // [the Manifold API docs for POST /v0/market/marketId/group]: https://docs.manifold.markets/api#post-v0marketmarketidgroup
-func (mc *Client) AddMarketToGroup(marketId, gi string) error {
+func (mc *Client) AddMarketToGroup(ctx context.Context, marketId, groupId string) error {
 	g := struct {
 		GroupId string `json:"groupId,omitempty"`
-	}{gi}
+	}{groupId}
 
 	jsonBody, err := json.Marshal(g)
 	if err != nil {
@@ -595,15 +592,11 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 
 	bodyReader := bytes.NewReader(jsonBody)
 
-	req, err := http.NewRequest(http.MethodPost, requestURL(
+	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postMarket,
 		marketId,
 		groupSuffix), bodyReader)
-	if err != nil {
-		return fmt.Errorf("error creating http request: %w", err)
-	}
 
-	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
 	}
