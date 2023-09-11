@@ -595,7 +595,7 @@ func (mc *Client) AddMarketToGroup(ctx context.Context, marketId, groupId string
 	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postMarket,
 		marketId,
-		groupSuffix), bodyReader)
+		"/group"), bodyReader)
 
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
