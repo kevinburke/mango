@@ -6,7 +6,7 @@ import (
 )
 
 const base string = "https://manifold.markets/api"
-const version string = "v0/"
+const version string = "v0"
 
 const defaultLimit = 1000
 
@@ -50,7 +50,7 @@ func requestURL(base, path, value, suffix string, params ...string) string {
 		return ""
 	}
 
-	query, err := url.Parse(base + "/" + version)
+	query, err := url.Parse(base + "/" + version + "/")
 	if err != nil {
 		log.Fatalf("error parsing base URL: %v", err)
 	}
