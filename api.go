@@ -565,6 +565,10 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
 	}
+	if resp.Body != nil {
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("market closure failed with status %d", resp.StatusCode)
@@ -638,6 +642,10 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
 	}
+	if resp.Body != nil {
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("market resolution failed with status %d", resp.StatusCode)
@@ -674,6 +682,10 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
+	}
+	if resp.Body != nil {
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -723,6 +735,7 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	if r == nil {
 		panic("cannot parse response on nil *http.Response")
 	}
+	defer r.Body.Close()
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %w", err)
