@@ -2,7 +2,6 @@ package mango
 
 import (
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -34,5 +33,10 @@ func (c *Client) WritesAvailableNow() int {
 	return c.writeWindow.AvailableNow()
 }
 
-var lock = &sync.Mutex{}
-var mcInstance *Client // TODO: figure out whether this should really be a singleton or not
+func New(client http.Client, apiURL string, key string) *Client {
+	return &Client{
+		client: client,
+		url:    apiURL,
+		key:    key,
+	}
+}
