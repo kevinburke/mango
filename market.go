@@ -66,20 +66,21 @@ type GetMarketsRequest struct {
 
 // PostMarketRequest represents the parameters required to create a new market via the API
 type PostMarketRequest struct {
-	OutcomeType         OutcomeType `json:"outcomeType"`
-	Question            string      `json:"question"`
-	Description         string      `json:"description,omitempty"`
-	DescriptionHtml     string      `json:"descriptionHtml,omitempty"`
-	DescriptionMarkdown string      `json:"descriptionMarkdown,omitempty"`
-	CloseTime           int64       `json:"closeTime,omitempty"`
-	Visibility          string      `json:"visibility,omitempty"`
-	GroupIds            []string    `json:"groupIds,omitempty"`
-	InitialProb         int64       `json:"initialProb,omitempty"`
-	Min                 int64       `json:"min,omitempty"`
-	Max                 int64       `json:"max,omitempty"`
-	IsLogScale          bool        `json:"isLogScale,omitempty"`
-	InitialVal          int64       `json:"initialValue,omitempty"`
-	Answers             []string    `json:"answers,omitempty"`
+	OutcomeType           OutcomeType `json:"outcomeType"`
+	Question              string      `json:"question"`
+	Description           string      `json:"description,omitempty"`
+	DescriptionHtml       string      `json:"descriptionHtml,omitempty"`
+	DescriptionMarkdown   string      `json:"descriptionMarkdown,omitempty"`
+	CloseTime             int64       `json:"closeTime,omitempty"`
+	Visibility            string      `json:"visibility,omitempty"`
+	GroupIds              []string    `json:"groupIds,omitempty"`
+	InitialProb           int64       `json:"initialProb,omitempty"`
+	Min                   int64       `json:"min,omitempty"`
+	Max                   int64       `json:"max,omitempty"`
+	IsLogScale            bool        `json:"isLogScale,omitempty"`
+	InitialVal            int64       `json:"initialValue,omitempty"`
+	Answers               []string    `json:"answers,omitempty"`
+	ShouldAnswersSumToOne bool        `json:"shouldAnswersSumToOne,omitempty"`
 }
 
 // ResolveMarketRequest represents the parameters required to resolve a market via the API

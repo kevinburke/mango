@@ -472,15 +472,13 @@ func (mc *Client) CreateMarket(ctx context.Context, pmr PostMarketRequest) (*str
 	// TODO: add input validation
 	jsonBody, err := json.Marshal(pmr)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %w", err)
+		return nil, fmt.Errorf("error marshaling PostMarketRequest: %w", err)
 	}
-
-	bodyReader := bytes.NewReader(jsonBody)
 
 	resp, err := mc.makeRequest(ctx, http.MethodPost, requestURL(
 		mc.url, postMarket,
 		"",
-		""), bodyReader)
+		""), bytes.NewReader(jsonBody))
 
 	if resp.StatusCode != http.StatusOK {
 		// TODO: print the response body here too
@@ -512,12 +510,10 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 		return fmt.Errorf("error making http request: %w", err)
 	}
 
-	bodyReader := bytes.NewReader(jsonBody)
-
 	resp, err := mc.makeRequest(context.TODO(), http.MethodPost, requestURL(
 		mc.url, postMarket,
 		marketId,
-		liquiditySuffix), bodyReader)
+		liquiditySuffix), bytes.NewReader(jsonBody))
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %w", err)
 	}
