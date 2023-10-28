@@ -80,7 +80,7 @@ type PostMarketRequest struct {
 	IsLogScale            bool        `json:"isLogScale,omitempty"`
 	InitialVal            int64       `json:"initialValue,omitempty"`
 	Answers               []string    `json:"answers,omitempty"`
-	ShouldAnswersSumToOne bool        `json:"shouldAnswersSumToOne,omitempty"`
+	ShouldAnswersSumToOne bool        `json:"shouldAnswersSumToOne"`
 }
 
 // ResolveMarketRequest represents the parameters required to resolve a market via the API
