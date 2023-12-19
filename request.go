@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-const base string = "https://manifold.markets/api"
+const base string = "https://api.manifold.markets"
 const version string = "v0"
 
 const defaultLimit = 1000
