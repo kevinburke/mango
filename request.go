@@ -24,7 +24,7 @@ const getUserByUsername string = "user/"
 const getUserByID string = "user/by-id/"
 const getUsers string = "users/"
 
-const postBet string = "bet/"
+const postBet string = "bet"
 const postCancellation string = "bet/cancel/"
 const postMarket string = "market"
 const postComment string = "comment/"
