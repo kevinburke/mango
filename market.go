@@ -58,6 +58,7 @@ type Answer struct {
 	Resolution            string  `json:"resolution,omitempty"`
 	ResolutionTime        int64   `json:"resolutionTime,omitempty"`
 	ResolutionProbability float64 `json:"resolutionProbability,omitempty"`
+	Pool                  Pool    `json:"pool,omitempty"`
 }
 
 // GetMarketsRequest represents the optional parameters that can be supplied to
