@@ -176,6 +176,14 @@ func (mc *Client) GetMarketByID(ctx context.Context, id string) (*FullMarket, er
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %w", err)
 	}
+	/*
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading response body: %w", err)
+		}
+		_ = body
+	*/
 
 	return parseResponse(resp, FullMarket{})
 }

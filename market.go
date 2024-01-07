@@ -45,16 +45,19 @@ type Pool struct {
 
 // Answer represents a potential answer on a free response market
 type Answer struct {
-	Id          string  `json:"id"`
-	Username    string  `json:"username"`
-	Name        string  `json:"name"`
-	UserId      string  `json:"userId"`
-	CreatedTime int64   `json:"createdTime"`
-	AvatarUrl   string  `json:"avatarUrl"`
-	Number      int64   `json:"number"`
-	ContractId  string  `json:"contractId"`
-	Text        string  `json:"text"`
-	Probability float64 `json:"probability"`
+	Id                    string  `json:"id"`
+	Username              string  `json:"username"`
+	Name                  string  `json:"name"`
+	UserId                string  `json:"userId"`
+	CreatedTime           int64   `json:"createdTime"`
+	AvatarUrl             string  `json:"avatarUrl"`
+	Number                int64   `json:"number"`
+	ContractId            string  `json:"contractId"`
+	Text                  string  `json:"text"`
+	Probability           float64 `json:"probability"`
+	Resolution            string  `json:"resolution,omitempty"`
+	ResolutionTime        int64   `json:"resolutionTime,omitempty"`
+	ResolutionProbability float64 `json:"resolutionProbability,omitempty"`
 }
 
 // GetMarketsRequest represents the optional parameters that can be supplied to
