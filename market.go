@@ -85,6 +85,8 @@ type PostMarketRequest struct {
 	InitialVal            int64       `json:"initialValue,omitempty"`
 	Answers               []string    `json:"answers,omitempty"`
 	ShouldAnswersSumToOne bool        `json:"shouldAnswersSumToOne"`
+	// one of "play", "basic", "premium", others
+	Tier string `json:"marketTier,omitempty"`
 }
 
 // ResolveMarketRequest represents the parameters required to resolve a market via the API
