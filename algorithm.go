@@ -66,7 +66,7 @@ func SharesFromBet(state State, bet float64, outcome string) float64 {
 	// calculate remaining shares
 	fee := 0.0
 	// this is just copied from getCpmmFee
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		betAmountAfterFee := bet - fee
 		sharesAfterFee := sharesFromBet(state, betAmountAfterFee, outcome)
 		averageProb := betAmountAfterFee / sharesAfterFee
