@@ -45,7 +45,38 @@ func getCPMMProbability(yes, no float64, p float64) float64 {
 	return (p * no) / ((1-p)*yes + p*no)
 }
 
+/*
+from fees.ts, July 2024
+const TAKER_FEE_CONSTANT = 0.07
+export const getTakerFee = (shares: number, prob: number) => {
+  return TAKER_FEE_CONSTANT * prob * (1 - prob) * shares
+}
+*/
+
+const FeeConstant = 0.07
+
+func getTakerFee(shares, prob float64) float64 {
+	return FeeConstant * prob * (1 - prob) * shares
+}
+
 func SharesFromBet(state State, bet float64, outcome string) float64 {
+	// calculate shares
+	// calculate fee
+	// subtract fee from bet
+	// calculate remaining shares
+	fee := 0.0
+	// this is just copied from getCpmmFee
+	for i := 0; i < 10; i++ {
+		betAmountAfterFee := bet - fee
+		sharesAfterFee := sharesFromBet(state, betAmountAfterFee, outcome)
+		averageProb := betAmountAfterFee / sharesAfterFee
+		fee = getTakerFee(averageProb, sharesAfterFee)
+	}
+	remainingBet := bet - fee
+	return sharesFromBet(state, remainingBet, outcome)
+}
+
+func sharesFromBet(state State, bet float64, outcome string) float64 {
 	p := state.P
 	k := math.Pow(state.Yes, p) * math.Pow(state.No, 1-p)
 	switch outcome {
