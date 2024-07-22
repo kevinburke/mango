@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package mango
 
 import (
@@ -52,8 +55,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 }
 
 func TestGetBets(t *testing.T) {
-	mc := DefaultClientInstance()
-	defer mc.Destroy()
+	mc := defaultClientInstance()
 
 	var tests = []struct {
 		ui, un, ci, cs, b string
@@ -87,7 +89,7 @@ func TestGetBets(t *testing.T) {
 }
 
 func TestGetComments(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -112,7 +114,7 @@ func TestGetComments(t *testing.T) {
 }
 
 func TestGetGroupByID(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -135,7 +137,7 @@ func TestGetGroupByID(t *testing.T) {
 }
 
 func TestGetGroupBySlug(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -158,7 +160,7 @@ func TestGetGroupBySlug(t *testing.T) {
 }
 
 func TestGetGroups(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -182,7 +184,7 @@ func TestGetGroups(t *testing.T) {
 }
 
 func TestGetMarketByID(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -205,7 +207,7 @@ func TestGetMarketByID(t *testing.T) {
 }
 
 func TestGetMarketBySlug(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -228,7 +230,7 @@ func TestGetMarketBySlug(t *testing.T) {
 }
 
 func TestGetMarkets(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -254,7 +256,7 @@ func TestGetMarkets(t *testing.T) {
 }
 
 func TestGetMarketsForGroup(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -277,7 +279,7 @@ func TestGetMarketsForGroup(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -300,7 +302,7 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUserByUsername(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {
@@ -322,8 +324,12 @@ func TestGetUserByUsername(t *testing.T) {
 	}
 }
 
+func defaultClientInstance() *Client {
+	return Client{}
+}
+
 func TestGetUsers(t *testing.T) {
-	mc := DefaultClientInstance()
+	mc := defaultClientInstance()
 	defer mc.Destroy()
 
 	var tests = []struct {

@@ -13,11 +13,12 @@ type State struct {
 	P   float64 // not sure what this is
 }
 
-// Returns the new probability
+// Returns the number of shares received from betting
 func (s *State) Bet(bet float64, outcome string) float64 {
 	if s == nil {
 		panic("mango.State.Bet: nil *State")
 	}
+	preFeeShares := sharesFromBet(*s, bet, outcome)
 	shares := SharesFromBet(*s, bet, outcome)
 	switch outcome {
 	case "YES":
@@ -29,8 +30,8 @@ func (s *State) Bet(bet float64, outcome string) float64 {
 	default:
 		panic(fmt.Sprintf("unknown outcome value %q", outcome))
 	}
-	fee := float64(0)
 	prob := getCPMMProbability(s.Yes, s.No, s.P)
+	fee := getTakerFee(preFeeShares, prob)
 	numerator := prob * (fee + s.Yes)
 	denominator := fee - s.No*(prob-1) + prob*s.Yes
 	s.P = numerator / denominator
