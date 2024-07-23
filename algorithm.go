@@ -20,9 +20,7 @@ func (s *State) Bet(bet float64, outcome string) float64 {
 		panic("mango.State.Bet: nil *State")
 	}
 	preFeeShares := sharesFromBet(*s, bet, outcome)
-	fmt.Println("pre fee shares", preFeeShares)
 	shares := SharesFromBet(*s, bet, outcome)
-	fmt.Println("shares", shares)
 	switch outcome {
 	case "YES":
 		s.Yes = s.Yes - shares + bet
