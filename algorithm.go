@@ -3,6 +3,7 @@ package mango
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 )
 
@@ -13,13 +14,15 @@ type State struct {
 	P   float64 // not sure what this is
 }
 
-// Returns the number of shares received from betting
+// Modify *State and the number of shares received from betting
 func (s *State) Bet(bet float64, outcome string) float64 {
 	if s == nil {
 		panic("mango.State.Bet: nil *State")
 	}
 	preFeeShares := sharesFromBet(*s, bet, outcome)
+	fmt.Println("pre fee shares", preFeeShares)
 	shares := SharesFromBet(*s, bet, outcome)
+	fmt.Println("shares", shares)
 	switch outcome {
 	case "YES":
 		s.Yes = s.Yes - shares + bet
@@ -35,6 +38,7 @@ func (s *State) Bet(bet float64, outcome string) float64 {
 	numerator := prob * (fee + s.Yes)
 	denominator := fee - s.No*(prob-1) + prob*s.Yes
 	s.P = numerator / denominator
+	slog.Debug("call state.Bet", "outcome", outcome, "pre_fee_shares", preFeeShares, "post_fee_shares", shares)
 	return shares
 }
 
@@ -57,7 +61,12 @@ export const getTakerFee = (shares: number, prob: number) => {
 const FeeConstant = 0.07
 
 func getTakerFee(shares, prob float64) float64 {
-	return FeeConstant * prob * (1 - prob) * shares
+	if prob > 1 || prob < 0 {
+		panic(fmt.Sprintf("getTakerFee called with probability larger than 1 or less than 0: %v", prob))
+	}
+	fee := FeeConstant * prob * (1 - prob) * shares
+	// fmt.Printf("getTakerFee(%v, %v) = %v * %v * (1 - %v) * %v = %v\n", shares, prob, FeeConstant, prob, prob, shares, fee)
+	return fee
 }
 
 func SharesFromBet(state State, bet float64, outcome string) float64 {
@@ -67,17 +76,22 @@ func SharesFromBet(state State, bet float64, outcome string) float64 {
 	// calculate remaining shares
 	fee := 0.0
 	// this is just copied from getCpmmFee
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 10; i++ {
 		betAmountAfterFee := bet - fee
 		sharesAfterFee := sharesFromBet(state, betAmountAfterFee, outcome)
 		averageProb := betAmountAfterFee / sharesAfterFee
-		fee = getTakerFee(averageProb, sharesAfterFee)
+		fee = getTakerFee(sharesAfterFee, averageProb)
 	}
 	remainingBet := bet - fee
 	return sharesFromBet(state, remainingBet, outcome)
 }
 
 func sharesFromBet(state State, bet float64, outcome string) float64 {
+	result := sharesFromBet_(state, bet, outcome)
+	// fmt.Printf("sharesFromBet(%v, %v, %q): %v shares\n", state, bet, outcome, result)
+	return result
+}
+func sharesFromBet_(state State, bet float64, outcome string) float64 {
 	p := state.P
 	k := math.Pow(state.Yes, p) * math.Pow(state.No, 1-p)
 	switch outcome {
